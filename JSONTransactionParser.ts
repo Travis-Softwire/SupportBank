@@ -2,8 +2,9 @@ import moment, {Moment} from "moment";
 import Transaction from "./Transaction";
 import TransactionParser from "./TransactionParser";
 import log4js from "log4js";
+import {throws} from "assert";
 const fs = require('fs');
-const logger = log4js.getLogger('CSVTransactionParser');
+const logger = log4js.getLogger('JSONTransactionParser');
 
 export default class JSONTransactionParser implements TransactionParser {
     readonly fileName: string;
@@ -36,8 +37,11 @@ export default class JSONTransactionParser implements TransactionParser {
             }));
             resolve(transactions);
             if (parseErrors.length > 0) {
-                console.log(`The following errors were encountered in the CSV file: \n${parseErrors.join('\n')}\n`);
-                console.log("These transactions have not been processed.\n");
+                throw new Error(
+                    `The following errors were encountered in the CSV file: 
+                    ${parseErrors.join('\n')}
+                    These transactions have not been processed.\n`
+                );
             }
         });
     }

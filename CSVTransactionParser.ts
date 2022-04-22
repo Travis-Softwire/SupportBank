@@ -37,8 +37,9 @@ export default class CSVTransactionParser implements TransactionParser {
                 .on('end', () => {
                     resolve(transactions);
                     if (parseErrors.length > 0) {
-                        console.log(`The following errors were encountered in the CSV file: \n${parseErrors.join('\n')}\n`);
-                        console.log("These transactions have not been processed.\n");
+                        console.log(
+                            `The following errors were encountered in the CSV file:\n${parseErrors.join('\n')}\nThese transactions have not been processed.\n`
+                        );
                     }
                 });
         });

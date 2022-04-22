@@ -17,7 +17,7 @@ const CSVTransactionParser_1 = __importDefault(require("./CSVTransactionParser")
 const JSONTransactionParser_1 = __importDefault(require("./JSONTransactionParser"));
 const log4js_1 = __importDefault(require("log4js"));
 const readlineSync = require('readline-sync');
-const validCmds = ["list"];
+const validCmds = ["list", "import", "help"];
 log4js_1.default.configure({
     appenders: {
         file: { type: 'fileSync', filename: 'logs/debug.log' }
@@ -29,28 +29,42 @@ log4js_1.default.configure({
 main();
 function main() {
     return __awaiter(this, void 0, void 0, function* () {
-        const fileName = process.argv.slice(2)[0];
         const bank = new Bank_1.default();
-        const parser = SelectTransactionParser(fileName);
-        const transactionData = yield parser.ParseTransactions();
-        transactionData.forEach((transaction) => bank.processTransaction(transaction));
-        let command = readlineSync.question("Please enter a command, or 'help' for options: ").split(' ');
-        while (command.length === 0 || validCmds.indexOf(command[0].toLowerCase()) === -1) {
-            if (command.length > 0 && command[0].toLowerCase() === "help") {
-                command = readlineSync.question("Valid commands are 'List All' to list accounts, or 'List [Account name]' to list transactions for that account: ").split(' ');
+        let command = [];
+        while (command.length === 0 || command[0].toLowerCase() !== 'quit') {
+            command = readlineSync.question("Please enter a command, or 'help' for options: ").split(' ');
+            if (!commandIsValid(command)) {
+                console.log("Invalid command\n");
             }
-            else {
-                command = readlineSync.question("Please enter a valid command, or 'help' for options: ").split(' ');
+            else if (command[0].toLowerCase() === 'list') {
+                ListBankData(command.slice(1).join(' '), bank);
+            }
+            else if (command[0].toLowerCase() === 'help') {
+                console.log(`Valid commands are:
+    'List All' to list accounts,
+    'List [Account name]' to list transactions for that account,
+    'Import File [filename]' to import transactions from that file,
+    'Quit' to quit.`);
+            }
+            else if (command[0].toLowerCase() === 'import') {
+                try {
+                    yield ImportBankData(command[2], bank);
+                    console.log("Data imported successfully.");
+                }
+                catch (e) {
+                    console.log(e.message);
+                }
             }
         }
-        const commandArg = command.slice(1).join(' ');
-        if (commandArg.toLowerCase() === "all") {
-            bank.printAccounts();
-        }
-        else {
-            bank.printTransactions(commandArg);
-        }
+        console.log("Goodbye!");
     });
+}
+function commandIsValid(command) {
+    return !(command.length === 0
+        || validCmds.indexOf(command[0].toLowerCase()) === -1
+        || (command[0].toLowerCase() === "import"
+            && (command.length < 3 || command[1].toLowerCase() !== 'file'))
+        || (command[0].toLowerCase() === "list" && command.length < 2));
 }
 function SelectTransactionParser(fileName) {
     const ext = fileName.substring(fileName.lastIndexOf('.'));
@@ -62,5 +76,21 @@ function SelectTransactionParser(fileName) {
         default:
             throw new Error(`No parser found for file extension ${ext}`);
     }
+}
+function ListBankData(commandArg, bank) {
+    if (commandArg.toLowerCase() === "all") {
+        bank.printAccounts();
+    }
+    else {
+        bank.printTransactions(commandArg);
+    }
+}
+function ImportBankData(fileName, bank) {
+    return __awaiter(this, void 0, void 0, function* () {
+        fileName = `./Transactions/${fileName}`;
+        const parser = SelectTransactionParser(fileName);
+        const transactionData = yield parser.ParseTransactions();
+        transactionData.forEach((transaction) => bank.processTransaction(transaction));
+    });
 }
 //# sourceMappingURL=index.js.map

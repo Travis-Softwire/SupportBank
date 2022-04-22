@@ -5,7 +5,7 @@ import TransactionParser from "./TransactionParser";
 import Transaction from "./Transaction";
 import log4js from "log4js";
 const readlineSync = require('readline-sync');
-const validCmds = ["list"];
+const validCmds = ["list", "import", "help"];
 
 log4js.configure({
     appenders: {
@@ -20,28 +20,40 @@ main();
 
 async function main(): Promise<void>
 {
-    const fileName = process.argv.slice(2)[0];
     const bank: Bank = new Bank();
-    const parser = SelectTransactionParser(fileName);
-
-    const transactionData = await parser.ParseTransactions();
-    transactionData.forEach((transaction: Transaction) => bank.processTransaction(transaction));
-
-    let command: string[] = readlineSync.question("Please enter a command, or 'help' for options: ").split(' ');
-    while (command.length === 0 || validCmds.indexOf(command[0].toLowerCase()) === -1) {
-        if (command.length > 0 && command[0].toLowerCase() === "help") {
-            command = readlineSync.question("Valid commands are 'List All' to list accounts, or 'List [Account name]' to list transactions for that account: ").split(' ');
-        } else {
-            command = readlineSync.question("Please enter a valid command, or 'help' for options: ").split(' ');
+    let command: string[] = [];
+    while (command.length === 0 || command[0].toLowerCase() !== 'quit') {
+        command = readlineSync.question("Please enter a command, or 'help' for options: ").split(' ')
+        if (!commandIsValid(command)) {
+            console.log("Invalid command\n");
+        } else if (command[0].toLowerCase() === 'list') {
+            ListBankData(command.slice(1).join(' '), bank);
+        }  else if (command[0].toLowerCase() === 'help') {
+            console.log(
+                `Valid commands are:
+    'List All' to list accounts,
+    'List [Account name]' to list transactions for that account,
+    'Import File [filename]' to import transactions from that file,
+    'Quit' to quit.`
+            );
+        } else if (command[0].toLowerCase() === 'import') {
+            try {
+                await ImportBankData(command[2], bank);
+                console.log("Data imported successfully.");
+            } catch (e: any) {
+                console.log(e.message);
+            }
         }
     }
+    console.log("Goodbye!");
+}
 
-    const commandArg: string = command.slice(1).join(' ');
-    if (commandArg.toLowerCase() === "all") {
-        bank.printAccounts();
-    } else {
-        bank.printTransactions(commandArg);
-    }
+function commandIsValid(command: string[]): boolean {
+    return !(command.length === 0
+            || validCmds.indexOf(command[0].toLowerCase()) === -1
+            || (command[0].toLowerCase() === "import"
+                && (command.length < 3 || command[1].toLowerCase() !== 'file'))
+            || (command[0].toLowerCase() === "list" && command.length < 2));
 }
 
 function SelectTransactionParser(fileName: string): TransactionParser {
@@ -54,5 +66,20 @@ function SelectTransactionParser(fileName: string): TransactionParser {
         default:
             throw new Error(`No parser found for file extension ${ext}`);
     }
+}
+
+function ListBankData(commandArg: string, bank: Bank): void {
+    if (commandArg.toLowerCase() === "all") {
+        bank.printAccounts();
+    } else {
+        bank.printTransactions(commandArg);
+    }
+}
+
+async function ImportBankData(fileName: string, bank: Bank): Promise<void> {
+    fileName = `./Transactions/${fileName}`;
+    const parser = SelectTransactionParser(fileName);
+    const transactionData = await parser.ParseTransactions();
+    transactionData.forEach((transaction: Transaction) => bank.processTransaction(transaction));
 }
 
