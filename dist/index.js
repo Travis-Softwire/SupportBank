@@ -14,6 +14,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const Bank_1 = __importDefault(require("./Bank"));
 const CSVTransactionParser_1 = __importDefault(require("./CSVTransactionParser"));
+const JSONTransactionParser_1 = __importDefault(require("./JSONTransactionParser"));
 const log4js_1 = __importDefault(require("log4js"));
 const readlineSync = require('readline-sync');
 const validCmds = ["list"];
@@ -56,6 +57,8 @@ function SelectTransactionParser(fileName) {
     switch (ext) {
         case '.csv':
             return new CSVTransactionParser_1.default(fileName);
+        case '.json':
+            return new JSONTransactionParser_1.default(fileName);
         default:
             throw new Error(`No parser found for file extension ${ext}`);
     }

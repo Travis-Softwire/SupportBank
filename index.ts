@@ -1,5 +1,6 @@
 import Bank from "./Bank";
 import CSVTransactionParser from "./CSVTransactionParser";
+import JSONTransactionParser from "./JSONTransactionParser";
 import TransactionParser from "./TransactionParser";
 import Transaction from "./Transaction";
 import log4js from "log4js";
@@ -48,6 +49,8 @@ function SelectTransactionParser(fileName: string): TransactionParser {
     switch (ext) {
         case '.csv':
             return new CSVTransactionParser(fileName);
+        case '.json':
+            return new JSONTransactionParser(fileName);
         default:
             throw new Error(`No parser found for file extension ${ext}`);
     }
