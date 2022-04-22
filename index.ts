@@ -2,8 +2,18 @@ import Bank from "./Bank";
 import CSVTransactionParser from "./CSVTransactionParser";
 import TransactionParser from "./TransactionParser";
 import Transaction from "./Transaction";
+import log4js from "log4js";
 const readlineSync = require('readline-sync');
 const validCmds = ["list"];
+
+log4js.configure({
+    appenders: {
+        file: { type: 'fileSync', filename: 'logs/debug.log'}
+    },
+    categories: {
+        default: { appenders: ['file'], level: 'debug'}
+    }
+});
 
 main();
 

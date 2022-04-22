@@ -14,12 +14,21 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const Bank_1 = __importDefault(require("./Bank"));
 const CSVTransactionParser_1 = __importDefault(require("./CSVTransactionParser"));
+const log4js_1 = __importDefault(require("log4js"));
 const readlineSync = require('readline-sync');
 const validCmds = ["list"];
+log4js_1.default.configure({
+    appenders: {
+        file: { type: 'fileSync', filename: 'logs/debug.log' }
+    },
+    categories: {
+        default: { appenders: ['file'], level: 'debug' }
+    }
+});
 main();
 function main() {
     return __awaiter(this, void 0, void 0, function* () {
-        const fileName = process.argv.slice(2)[0]; //For Part 1
+        const fileName = process.argv.slice(2)[0];
         const bank = new Bank_1.default();
         const csvParser = new CSVTransactionParser_1.default(fileName);
         const transactionData = yield csvParser.ParseTransactions();
