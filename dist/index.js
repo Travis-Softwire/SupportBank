@@ -13,12 +13,13 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const Bank_1 = __importDefault(require("./Bank"));
+const log4js_1 = __importDefault(require("log4js"));
 const CSVTransactionParser_1 = __importDefault(require("./CSVTransactionParser"));
 const JSONTransactionParser_1 = __importDefault(require("./JSONTransactionParser"));
 const XMLTransactionParser_1 = __importDefault(require("./XMLTransactionParser"));
-const log4js_1 = __importDefault(require("log4js"));
+const JSONTransactionExporter_1 = __importDefault(require("./JSONTransactionExporter"));
 const readlineSync = require('readline-sync');
-const validCmds = ["list", "import", "help"];
+const validCmds = ["list", "import", "help", "export"];
 log4js_1.default.configure({
     appenders: {
         file: { type: 'fileSync', filename: 'logs/debug.log' }
@@ -38,7 +39,13 @@ function main() {
                 console.log("Invalid command\n");
             }
             else if (command[0].toLowerCase() === 'list') {
-                ListBankData(command.slice(1).join(' '), bank);
+                const commandArg = command.slice(1).join(' ').toLowerCase();
+                if (commandArg === 'all') {
+                    bank.printAccounts();
+                }
+                else {
+                    bank.printTransactions(commandArg);
+                }
             }
             else if (command[0].toLowerCase() === 'help') {
                 console.log(`Valid commands are:
@@ -49,8 +56,21 @@ function main() {
             }
             else if (command[0].toLowerCase() === 'import') {
                 try {
-                    yield ImportBankData(command[2], bank);
+                    const fileName = command[2];
+                    bank.setParser(SelectTransactionParser(fileName));
+                    yield bank.ImportTransactions(fileName);
                     console.log("Data imported successfully.");
+                }
+                catch (e) {
+                    console.log(e.message);
+                }
+            }
+            else if (command[0].toLowerCase() === 'export') {
+                try {
+                    const fileName = command[2];
+                    bank.setExporter(SelectTransactionExporter(fileName));
+                    bank.ExportTransactions(fileName);
+                    console.log(`Data successfully exported to ./TransactionExports/${fileName}`);
                 }
                 catch (e) {
                     console.log(e.message);
@@ -63,7 +83,7 @@ function main() {
 function commandIsValid(command) {
     return !(command.length === 0
         || validCmds.indexOf(command[0].toLowerCase()) === -1
-        || (command[0].toLowerCase() === "import"
+        || ((command[0].toLowerCase() === "import" || command[0].toLowerCase() === "export")
             && (command.length < 3 || command[1].toLowerCase() !== 'file'))
         || (command[0].toLowerCase() === "list" && command.length < 2));
 }
@@ -80,20 +100,13 @@ function SelectTransactionParser(fileName) {
             throw new Error(`No parser found for file extension ${ext}`);
     }
 }
-function ListBankData(commandArg, bank) {
-    if (commandArg.toLowerCase() === "all") {
-        bank.printAccounts();
+function SelectTransactionExporter(fileName) {
+    const ext = fileName.substring(fileName.lastIndexOf('.'));
+    switch (ext) {
+        case '.json':
+            return new JSONTransactionExporter_1.default();
+        default:
+            throw new Error(`No exporter found for file extension ${ext}`);
     }
-    else {
-        bank.printTransactions(commandArg);
-    }
-}
-function ImportBankData(fileName, bank) {
-    return __awaiter(this, void 0, void 0, function* () {
-        fileName = `./Transactions/${fileName}`;
-        const parser = SelectTransactionParser(fileName);
-        const transactionData = yield parser.ParseTransactionsFromFile(fileName);
-        transactionData.forEach((transaction) => bank.processTransaction(transaction));
-    });
 }
 //# sourceMappingURL=index.js.map

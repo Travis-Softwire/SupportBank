@@ -1,12 +1,34 @@
 import Account from './Account';
 import Transaction from "./Transaction";
+import TransactionParser from "./TransactionParser";
+import TransactionExporter from "./TransactionExporter";
 
 export default class Bank {
     accounts: Map<string, Account> = new Map<string, Account>();
     transactions: Transaction[] = [];
+    transactionParser: TransactionParser | undefined;
+    transactionExporter: TransactionExporter | undefined;
+
+    setParser(parser: TransactionParser): void {
+        this.transactionParser = parser;
+    }
+
+    setExporter(exporter: TransactionExporter): void {
+        this.transactionExporter = exporter;
+    }
 
     createAccount(owner: string, openingBalance: number = 0) {
         this.accounts.set(owner, new Account(owner, openingBalance));
+    }
+
+    async ImportTransactions(fileName: string): Promise<void> {
+        fileName = `./Transactions/${fileName}`;
+        const transactionData = await this.transactionParser?.ParseTransactionsFromFile(fileName);
+        transactionData?.forEach((transaction: Transaction) => this.processTransaction(transaction));
+    }
+
+    ExportTransactions(fileName: string): void {
+        this.transactionExporter?.ExportTransactionsToFile(this.transactions, fileName);
     }
 
     processTransaction(transaction: Transaction): void {
@@ -42,3 +64,4 @@ export default class Bank {
         foundTransactions.forEach((transaction) => console.log(transaction.toString()));
     }
 }
+
