@@ -21,8 +21,9 @@ async function main(): Promise<void>
 {
     const fileName = process.argv.slice(2)[0];
     const bank: Bank = new Bank();
-    const csvParser: CSVTransactionParser = new CSVTransactionParser(fileName);
-    const transactionData = await csvParser.ParseTransactions();
+    const parser = SelectTransactionParser(fileName);
+
+    const transactionData = await parser.ParseTransactions();
     transactionData.forEach((transaction: Transaction) => bank.processTransaction(transaction));
 
     let command: string[] = readlineSync.question("Please enter a command, or 'help' for options: ").split(' ');
@@ -39,6 +40,16 @@ async function main(): Promise<void>
         bank.printAccounts();
     } else {
         bank.printTransactions(commandArg);
+    }
+}
+
+function SelectTransactionParser(fileName: string): TransactionParser {
+    const ext = fileName.substring(fileName.lastIndexOf('.'));
+    switch (ext) {
+        case '.csv':
+            return new CSVTransactionParser(fileName);
+        default:
+            throw new Error(`No parser found for file extension ${ext}`);
     }
 }
 

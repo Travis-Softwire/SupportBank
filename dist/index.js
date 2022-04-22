@@ -30,8 +30,8 @@ function main() {
     return __awaiter(this, void 0, void 0, function* () {
         const fileName = process.argv.slice(2)[0];
         const bank = new Bank_1.default();
-        const csvParser = new CSVTransactionParser_1.default(fileName);
-        const transactionData = yield csvParser.ParseTransactions();
+        const parser = SelectTransactionParser(fileName);
+        const transactionData = yield parser.ParseTransactions();
         transactionData.forEach((transaction) => bank.processTransaction(transaction));
         let command = readlineSync.question("Please enter a command, or 'help' for options: ").split(' ');
         while (command.length === 0 || validCmds.indexOf(command[0].toLowerCase()) === -1) {
@@ -50,5 +50,14 @@ function main() {
             bank.printTransactions(commandArg);
         }
     });
+}
+function SelectTransactionParser(fileName) {
+    const ext = fileName.substring(fileName.lastIndexOf('.'));
+    switch (ext) {
+        case '.csv':
+            return new CSVTransactionParser_1.default(fileName);
+        default:
+            throw new Error(`No parser found for file extension ${ext}`);
+    }
 }
 //# sourceMappingURL=index.js.map
