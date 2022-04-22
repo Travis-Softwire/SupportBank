@@ -9,7 +9,7 @@ main();
 
 async function main(): Promise<void>
 {
-    const fileName = "./Transactions/Transactions2014.csv"; //For Part 1
+    const fileName = process.argv.slice(2)[0];
     const bank: Bank = new Bank();
     const csvParser: CSVTransactionParser = new CSVTransactionParser(fileName);
     const transactionData = await csvParser.ParseTransactions();

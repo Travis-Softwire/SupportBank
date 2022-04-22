@@ -19,7 +19,7 @@ const validCmds = ["list"];
 main();
 function main() {
     return __awaiter(this, void 0, void 0, function* () {
-        const fileName = "./Transactions/Transactions2014.csv"; //For Part 1
+        const fileName = process.argv.slice(2)[0]; //For Part 1
         const bank = new Bank_1.default();
         const csvParser = new CSVTransactionParser_1.default(fileName);
         const transactionData = yield csvParser.ParseTransactions();
