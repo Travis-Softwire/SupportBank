@@ -1,2 +1,6 @@
 [2022-04-22T10:14:51.680] [DEBUG] CSVTransactionParser - Error on line 28: Amount is not a number
 [2022-04-22T10:14:51.682] [DEBUG] CSVTransactionParser - Error on line 52: Invalid date
+[2022-04-22T10:22:01.825] [DEBUG] CSVTransactionParser - Error on line 28: Amount is not a number
+[2022-04-22T10:22:01.827] [DEBUG] CSVTransactionParser - Error on line 52: Invalid date
+[2022-04-22T10:23:19.537] [DEBUG] CSVTransactionParser - Error on line 28: Amount is not a number
+[2022-04-22T10:23:19.540] [DEBUG] CSVTransactionParser - Error on line 52: Invalid date

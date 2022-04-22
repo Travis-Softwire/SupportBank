@@ -17,13 +17,16 @@ export default class CSVTransactionParser implements TransactionParser {
         return new Promise<Transaction[]>((resolve) => {
             let transactions: Transaction[] = [];
             let lineCount: number = 2; // Header isn't processed by 'data' event
+            let parseErrors: string[] = [];
             fs.createReadStream(this.fileName)
                 .pipe(csv())
                 .on('data', (row: any) => {
                     try {
                         transactions.push(this.ParseTransaction(row));
                     } catch (e: any) {
-                        logger.debug(`Error on line ${lineCount}: ${e.message}`);
+                        const errMsg = `Error on line ${lineCount}: ${e.message}`;
+                        logger.debug(errMsg);
+                        parseErrors.push(errMsg);
                     }
                     lineCount++;
                 })
@@ -33,6 +36,10 @@ export default class CSVTransactionParser implements TransactionParser {
                 })
                 .on('end', () => {
                     resolve(transactions);
+                    if (parseErrors.length > 0) {
+                        console.log(`The following errors were encountered in the CSV file: \n${parseErrors.join('\n')}\n`);
+                        console.log("These transactions have not been processed.\n");
+                    }
                 });
         });
     }

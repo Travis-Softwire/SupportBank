@@ -27,6 +27,7 @@ class CSVTransactionParser {
             return new Promise((resolve) => {
                 let transactions = [];
                 let lineCount = 2; // Header isn't processed by 'data' event
+                let parseErrors = [];
                 fs.createReadStream(this.fileName)
                     .pipe(csv())
                     .on('data', (row) => {
@@ -34,7 +35,9 @@ class CSVTransactionParser {
                         transactions.push(this.ParseTransaction(row));
                     }
                     catch (e) {
-                        logger.debug(`Error on line ${lineCount}: ${e.message}`);
+                        const errMsg = `Error on line ${lineCount}: ${e.message}`;
+                        logger.debug(errMsg);
+                        parseErrors.push(errMsg);
                     }
                     lineCount++;
                 })
@@ -44,6 +47,10 @@ class CSVTransactionParser {
                 })
                     .on('end', () => {
                     resolve(transactions);
+                    if (parseErrors.length > 0) {
+                        console.log(`\n The following errors were encountered in the CSV file: \n${parseErrors.join('\n')}\n`);
+                        console.log("These transactions have not been processed.\n");
+                    }
                 });
             });
         });
