@@ -23,6 +23,8 @@
   },
   "dependencies": {
     "csv-parser": "^3.0.0",
-    "moment": "^2.29.3"
+    "moment": "^2.29.3",
+    "prompt-sync": "^4.2.0",
+    "readline-sync": "^1.4.10"
   }
 }

@@ -25,12 +25,20 @@ export default class Bank {
     }
 
     printAccounts(): void {
+        if (this.accounts.size === 0) {
+            console.log("No accounts found");
+        }
         this.accounts.forEach((acc) => console.log(acc.toString()));
     }
 
     printTransactions(acc: string): void {
-        this.transactions
-            .filter((transaction) => transaction.to === acc || transaction.from === acc)
-            .forEach((transaction) => console.log(transaction.toString()));
+        acc = acc[0] === '"' || acc[0] === "'" ? acc.substring(1) : acc;
+        acc = acc[acc.length - 1] === '"' || acc[acc.length - 1] === "'" ? acc.substring(0, acc.length - 1) : acc;
+        let foundTransactions: Transaction[] = this.transactions
+            .filter((transaction) => transaction.to.toLowerCase() === acc.toLowerCase() || transaction.from.toLowerCase() === acc.toLowerCase());
+        if (foundTransactions.length === 0) {
+            console.log(`No transactions found relating to "${acc}"`);
+        }
+        foundTransactions.forEach((transaction) => console.log(transaction.toString()));
     }
 }
