@@ -15,6 +15,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const Bank_1 = __importDefault(require("./Bank"));
 const CSVTransactionParser_1 = __importDefault(require("./CSVTransactionParser"));
 const JSONTransactionParser_1 = __importDefault(require("./JSONTransactionParser"));
+const XMLTransactionParser_1 = __importDefault(require("./XMLTransactionParser"));
 const log4js_1 = __importDefault(require("log4js"));
 const readlineSync = require('readline-sync');
 const validCmds = ["list", "import", "help"];
@@ -70,9 +71,11 @@ function SelectTransactionParser(fileName) {
     const ext = fileName.substring(fileName.lastIndexOf('.'));
     switch (ext) {
         case '.csv':
-            return new CSVTransactionParser_1.default(fileName);
+            return new CSVTransactionParser_1.default();
         case '.json':
-            return new JSONTransactionParser_1.default(fileName);
+            return new JSONTransactionParser_1.default();
+        case '.xml':
+            return new XMLTransactionParser_1.default();
         default:
             throw new Error(`No parser found for file extension ${ext}`);
     }
@@ -89,7 +92,7 @@ function ImportBankData(fileName, bank) {
     return __awaiter(this, void 0, void 0, function* () {
         fileName = `./Transactions/${fileName}`;
         const parser = SelectTransactionParser(fileName);
-        const transactionData = yield parser.ParseTransactions();
+        const transactionData = yield parser.ParseTransactionsFromFile(fileName);
         transactionData.forEach((transaction) => bank.processTransaction(transaction));
     });
 }

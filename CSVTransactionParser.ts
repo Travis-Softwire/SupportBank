@@ -7,18 +7,13 @@ const fs = require('fs');
 const logger = log4js.getLogger('CSVTransactionParser');
 
 export default class CSVTransactionParser implements TransactionParser {
-    readonly fileName: string;
 
-    constructor(_fileName: string) {
-        this.fileName = _fileName;
-    }
-
-  async ParseTransactions(): Promise<Transaction[]> {
+    async ParseTransactionsFromFile(fileName: string): Promise<Transaction[]> {
         return new Promise<Transaction[]>((resolve) => {
             let transactions: Transaction[] = [];
             let lineCount: number = 2; // Header isn't processed by 'data' event
             let parseErrors: string[] = [];
-            fs.createReadStream(this.fileName)
+            fs.createReadStream(fileName)
                 .pipe(csv())
                 .on('data', (row: any) => {
                     try {

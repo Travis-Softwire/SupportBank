@@ -7,20 +7,15 @@ const fs = require('fs');
 const logger = log4js.getLogger('JSONTransactionParser');
 
 export default class JSONTransactionParser implements TransactionParser {
-    readonly fileName: string;
 
-    constructor(_filename: string) {
-        this.fileName = _filename;
-    }
-
-    async ParseTransactions(): Promise<Transaction[]> {
+    async ParseTransactionsFromFile(fileName: string): Promise<Transaction[]> {
         return new Promise<Transaction[]>((resolve) => {
             let transactions: Transaction[] = [];
             let lineCount: number = 1;
             let parseErrors: string[] = [];
             let transactionObjects: any[] = []
             try {
-                transactionObjects = JSON.parse(fs.readFileSync(this.fileName));
+                transactionObjects = JSON.parse(fs.readFileSync(fileName));
             } catch (e: any) {
                 console.log("Error parsing JSON file");
                 console.log(e.message);

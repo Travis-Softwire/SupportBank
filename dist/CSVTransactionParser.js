@@ -19,16 +19,13 @@ const csv = require('csv-parser');
 const fs = require('fs');
 const logger = log4js_1.default.getLogger('CSVTransactionParser');
 class CSVTransactionParser {
-    constructor(_fileName) {
-        this.fileName = _fileName;
-    }
-    ParseTransactions() {
+    ParseTransactionsFromFile(fileName) {
         return __awaiter(this, void 0, void 0, function* () {
             return new Promise((resolve) => {
                 let transactions = [];
                 let lineCount = 2; // Header isn't processed by 'data' event
                 let parseErrors = [];
-                fs.createReadStream(this.fileName)
+                fs.createReadStream(fileName)
                     .pipe(csv())
                     .on('data', (row) => {
                     try {

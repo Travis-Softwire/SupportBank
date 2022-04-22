@@ -18,3 +18,8 @@
 [2022-04-22T13:16:01.828] [DEBUG] CSVTransactionParser - Error on line 52: Invalid date
 [2022-04-22T13:19:20.772] [DEBUG] CSVTransactionParser - Error on line 28: Amount is not a number
 [2022-04-22T13:19:20.774] [DEBUG] CSVTransactionParser - Error on line 52: Invalid date
+[2022-04-22T14:43:59.844] [DEBUG] XMLTransactionParser - Error on line 1: Cannot read property 'Date' of undefined
+[2022-04-22T14:55:48.295] [DEBUG] XMLTransactionParser - Error on line 1: Cannot read property 'Date' of undefined
+[2022-04-22T14:56:07.607] [DEBUG] XMLTransactionParser - Error on line 2: Cannot read property 'Date' of undefined
+[2022-04-22T14:56:21.984] [DEBUG] XMLTransactionParser - Error on line 3: Cannot read property 'Date' of undefined
+[2022-04-22T14:56:39.336] [DEBUG] XMLTransactionParser - Error on line 4: Cannot read property 'Date' of undefined

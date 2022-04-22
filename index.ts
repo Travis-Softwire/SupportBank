@@ -1,6 +1,7 @@
 import Bank from "./Bank";
 import CSVTransactionParser from "./CSVTransactionParser";
 import JSONTransactionParser from "./JSONTransactionParser";
+import XMLTransactionParser from "./XMLTransactionParser";
 import TransactionParser from "./TransactionParser";
 import Transaction from "./Transaction";
 import log4js from "log4js";
@@ -60,9 +61,11 @@ function SelectTransactionParser(fileName: string): TransactionParser {
     const ext = fileName.substring(fileName.lastIndexOf('.'));
     switch (ext) {
         case '.csv':
-            return new CSVTransactionParser(fileName);
+            return new CSVTransactionParser();
         case '.json':
-            return new JSONTransactionParser(fileName);
+            return new JSONTransactionParser();
+        case '.xml':
+            return new XMLTransactionParser();
         default:
             throw new Error(`No parser found for file extension ${ext}`);
     }
@@ -79,7 +82,7 @@ function ListBankData(commandArg: string, bank: Bank): void {
 async function ImportBankData(fileName: string, bank: Bank): Promise<void> {
     fileName = `./Transactions/${fileName}`;
     const parser = SelectTransactionParser(fileName);
-    const transactionData = await parser.ParseTransactions();
+    const transactionData = await parser.ParseTransactionsFromFile(fileName);
     transactionData.forEach((transaction: Transaction) => bank.processTransaction(transaction));
 }
 
