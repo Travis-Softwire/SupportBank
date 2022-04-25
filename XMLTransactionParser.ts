@@ -1,41 +1,30 @@
 import moment, {Moment} from "moment";
 import TransactionParser from "./TransactionParser";
 import Transaction from "./Transaction";
-import log4js from "log4js";
 const xml2js = require('xml2js');
 const fs = require('fs');
-const logger = log4js.getLogger('XMLTransactionParser');
 
-export default class XMLTransactionParser implements TransactionParser {
+export default class XMLTransactionParser extends TransactionParser {
 
     async ParseTransactionsFromFile(fileName: string): Promise<Transaction[]> {
          return new Promise<Transaction[]>(async (resolve) => {
              let transactions: Transaction[] = [];
              let lineCount: number = 1;
-             let parseErrors: string[] = [];
              let parser = new xml2js.Parser();
-             parser.parseString(fs.readFileSync(fileName), (err: any, results: any) => {
+             parser.parseString(fs.readFileSync(fileName), (err: Error | null, results: any) => {
                  if (err) {
-                     logger.debug(err.message);
-                     throw new Error(`Error parsing file: ${err.message}`);
+                     this.errorHandler.LogAndStoreError(`Error parsing XML file: `)
                  } else {
                      let records = results.TransactionList.SupportTransaction;
                      for (const record in records) {
                          try {
                              transactions.push(this.ParseTransaction(records[record]));
                          } catch (e: any) {
-                             const errMsg = `Error on line ${lineCount}: ${e.message}`;
-                             logger.debug(errMsg);
-                             parseErrors.push(errMsg);
+                             this.errorHandler.LogAndStoreError(e.message, lineCount);
                          }
                          lineCount++;
                      }
                      resolve(transactions);
-                     if (parseErrors.length > 0) {
-                         console.log(
-                             `The following errors were encountered in the XML file:\n${parseErrors.join('\n')}\nThese transactions have not been processed.\n`
-                         );
-                     }
                  }
              });
          });

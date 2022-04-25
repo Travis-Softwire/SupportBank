@@ -29,3 +29,5 @@
 [2022-04-22T17:00:34.038] [DEBUG] CSVTransactionParser - Error on line 52: Invalid date
 [2022-04-22T17:02:51.052] [DEBUG] CSVTransactionParser - Error on line 28: Amount is not a number
 [2022-04-22T17:02:51.054] [DEBUG] CSVTransactionParser - Error on line 52: Invalid date
+[2022-04-25T09:49:27.394] [DEBUG] ParsingError - Error on line: 29: Amount is not a number. These transactions have not been processed.
+[2022-04-25T09:49:27.398] [DEBUG] ParsingError - Error on line: 53: Invalid date. These transactions have not been processed.

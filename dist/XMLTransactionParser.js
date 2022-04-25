@@ -13,23 +13,20 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const moment_1 = __importDefault(require("moment"));
+const TransactionParser_1 = __importDefault(require("./TransactionParser"));
 const Transaction_1 = __importDefault(require("./Transaction"));
-const log4js_1 = __importDefault(require("log4js"));
 const xml2js = require('xml2js');
 const fs = require('fs');
-const logger = log4js_1.default.getLogger('XMLTransactionParser');
-class XMLTransactionParser {
+class XMLTransactionParser extends TransactionParser_1.default {
     ParseTransactionsFromFile(fileName) {
         return __awaiter(this, void 0, void 0, function* () {
             return new Promise((resolve) => __awaiter(this, void 0, void 0, function* () {
                 let transactions = [];
                 let lineCount = 1;
-                let parseErrors = [];
                 let parser = new xml2js.Parser();
                 parser.parseString(fs.readFileSync(fileName), (err, results) => {
                     if (err) {
-                        logger.debug(err.message);
-                        throw new Error(`Error parsing file: ${err.message}`);
+                        this.errorHandler.LogAndStoreError(`Error parsing XML file: `);
                     }
                     else {
                         let records = results.TransactionList.SupportTransaction;
@@ -38,16 +35,11 @@ class XMLTransactionParser {
                                 transactions.push(this.ParseTransaction(records[record]));
                             }
                             catch (e) {
-                                const errMsg = `Error on line ${lineCount}: ${e.message}`;
-                                logger.debug(errMsg);
-                                parseErrors.push(errMsg);
+                                this.errorHandler.LogAndStoreError(e.message, lineCount);
                             }
                             lineCount++;
                         }
                         resolve(transactions);
-                        if (parseErrors.length > 0) {
-                            console.log(`The following errors were encountered in the XML file:\n${parseErrors.join('\n')}\nThese transactions have not been processed.\n`);
-                        }
                     }
                 });
             }));

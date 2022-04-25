@@ -13,18 +13,21 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const moment_1 = __importDefault(require("moment"));
+const TransactionParser_1 = __importDefault(require("./TransactionParser"));
 const Transaction_1 = __importDefault(require("./Transaction"));
-const log4js_1 = __importDefault(require("log4js"));
+const CSVTransactionParserErrorHandler_1 = __importDefault(require("./CSVTransactionParserErrorHandler"));
 const csv = require('csv-parser');
 const fs = require('fs');
-const logger = log4js_1.default.getLogger('CSVTransactionParser');
-class CSVTransactionParser {
+class CSVTransactionParser extends TransactionParser_1.default {
+    constructor() {
+        super();
+        this.errorHandler = new CSVTransactionParserErrorHandler_1.default(`ParsingError`);
+    }
     ParseTransactionsFromFile(fileName) {
         return __awaiter(this, void 0, void 0, function* () {
             return new Promise((resolve) => {
                 let transactions = [];
                 let lineCount = 2; // Header isn't processed by 'data' event
-                let parseErrors = [];
                 fs.createReadStream(fileName)
                     .pipe(csv())
                     .on('data', (row) => {
@@ -32,21 +35,16 @@ class CSVTransactionParser {
                         transactions.push(this.ParseTransaction(row));
                     }
                     catch (e) {
-                        const errMsg = `Error on line ${lineCount}: ${e.message}`;
-                        logger.debug(errMsg);
-                        parseErrors.push(errMsg);
+                        this.errorHandler.LogAndStoreError(e.message, lineCount);
                     }
                     lineCount++;
                 })
                     .on('error', (e) => {
-                    logger.debug(`Error on line ${lineCount}: ${e.message}`);
+                    this.errorHandler.LogAndStoreError(e.message, lineCount);
                     lineCount++;
                 })
                     .on('end', () => {
                     resolve(transactions);
-                    if (parseErrors.length > 0) {
-                        console.log(`The following errors were encountered in the CSV file:\n${parseErrors.join('\n')}\nThese transactions have not been processed.\n`);
-                    }
                 });
             });
         });

@@ -1,43 +1,30 @@
 import moment, {Moment} from "moment";
 import Transaction from "./Transaction";
 import TransactionParser from "./TransactionParser";
-import log4js from "log4js";
-import {throws} from "assert";
 const fs = require('fs');
-const logger = log4js.getLogger('JSONTransactionParser');
 
-export default class JSONTransactionParser implements TransactionParser {
+
+export default class JSONTransactionParser extends TransactionParser {
 
     async ParseTransactionsFromFile(fileName: string): Promise<Transaction[]> {
         return new Promise<Transaction[]>((resolve) => {
             let transactions: Transaction[] = [];
             let lineCount: number = 1;
-            let parseErrors: string[] = [];
             let transactionObjects: any[] = []
             try {
                 transactionObjects = JSON.parse(fs.readFileSync(fileName));
             } catch (e: any) {
-                console.log("Error parsing JSON file");
-                console.log(e.message);
+                this.errorHandler.LogAndStoreError(`Error parsing JSON file: ${e.message}`);
             }
             transactionObjects.forEach((record => {
                 try {
                     transactions.push(this.ParseTransaction(record));
                 } catch (e: any) {
-                    const errMsg = `Error on line ${lineCount}: ${e.message}`;
-                    logger.debug(errMsg);
-                    parseErrors.push(errMsg);
+                    this.errorHandler.LogAndStoreError(e.message, lineCount);
                 }
                 lineCount++;
             }));
             resolve(transactions);
-            if (parseErrors.length > 0) {
-                throw new Error(
-                    `The following errors were encountered in the CSV file: 
-                    ${parseErrors.join('\n')}
-                    These transactions have not been processed.\n`
-                );
-            }
         });
     }
 

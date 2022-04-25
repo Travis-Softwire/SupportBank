@@ -1,41 +1,38 @@
 import moment, {Moment} from "moment";
 import TransactionParser from "./TransactionParser";
 import Transaction from "./Transaction";
-import log4js from "log4js";
+import CSVTransactionParserErrorHandler from "./CSVTransactionParserErrorHandler";
 const csv = require('csv-parser');
 const fs = require('fs');
-const logger = log4js.getLogger('CSVTransactionParser');
 
-export default class CSVTransactionParser implements TransactionParser {
+
+export default class CSVTransactionParser extends TransactionParser {
+
+    constructor() {
+        super();
+        this.errorHandler = new CSVTransactionParserErrorHandler(`ParsingError`);
+    }
 
     async ParseTransactionsFromFile(fileName: string): Promise<Transaction[]> {
         return new Promise<Transaction[]>((resolve) => {
             let transactions: Transaction[] = [];
             let lineCount: number = 2; // Header isn't processed by 'data' event
-            let parseErrors: string[] = [];
             fs.createReadStream(fileName)
                 .pipe(csv())
                 .on('data', (row: any) => {
                     try {
                         transactions.push(this.ParseTransaction(row));
                     } catch (e: any) {
-                        const errMsg = `Error on line ${lineCount}: ${e.message}`;
-                        logger.debug(errMsg);
-                        parseErrors.push(errMsg);
+                        this.errorHandler.LogAndStoreError(e.message, lineCount);
                     }
                     lineCount++;
                 })
                 .on('error', (e: Error) => {
-                    logger.debug(`Error on line ${lineCount}: ${e.message}`);
+                    this.errorHandler.LogAndStoreError(e.message, lineCount);
                     lineCount++;
                 })
                 .on('end', () => {
                     resolve(transactions);
-                    if (parseErrors.length > 0) {
-                        console.log(
-                            `The following errors were encountered in the CSV file:\n${parseErrors.join('\n')}\nThese transactions have not been processed.\n`
-                        );
-                    }
                 });
         });
     }

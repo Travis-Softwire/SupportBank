@@ -25,6 +25,9 @@ export default class Bank {
         fileName = `./Transactions/${fileName}`;
         const transactionData = await this.transactionParser?.ParseTransactionsFromFile(fileName);
         transactionData?.forEach((transaction: Transaction) => this.processTransaction(transaction));
+        if (this.transactionParser?.hasErrors()) {
+            throw new Error(this.transactionParser?.getErrorMessages().join('\n'));
+        }
     }
 
     ExportTransactions(fileName: string): void {

@@ -28,11 +28,14 @@ class Bank {
         this.accounts.set(owner, new Account_1.default(owner, openingBalance));
     }
     ImportTransactions(fileName) {
-        var _a;
+        var _a, _b, _c;
         return __awaiter(this, void 0, void 0, function* () {
             fileName = `./Transactions/${fileName}`;
             const transactionData = yield ((_a = this.transactionParser) === null || _a === void 0 ? void 0 : _a.ParseTransactionsFromFile(fileName));
             transactionData === null || transactionData === void 0 ? void 0 : transactionData.forEach((transaction) => this.processTransaction(transaction));
+            if ((_b = this.transactionParser) === null || _b === void 0 ? void 0 : _b.hasErrors()) {
+                throw new Error((_c = this.transactionParser) === null || _c === void 0 ? void 0 : _c.getErrorMessages().join('\n'));
+            }
         });
     }
     ExportTransactions(fileName) {

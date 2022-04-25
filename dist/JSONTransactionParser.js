@@ -14,41 +14,31 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const moment_1 = __importDefault(require("moment"));
 const Transaction_1 = __importDefault(require("./Transaction"));
-const log4js_1 = __importDefault(require("log4js"));
+const TransactionParser_1 = __importDefault(require("./TransactionParser"));
 const fs = require('fs');
-const logger = log4js_1.default.getLogger('JSONTransactionParser');
-class JSONTransactionParser {
+class JSONTransactionParser extends TransactionParser_1.default {
     ParseTransactionsFromFile(fileName) {
         return __awaiter(this, void 0, void 0, function* () {
             return new Promise((resolve) => {
                 let transactions = [];
                 let lineCount = 1;
-                let parseErrors = [];
                 let transactionObjects = [];
                 try {
                     transactionObjects = JSON.parse(fs.readFileSync(fileName));
                 }
                 catch (e) {
-                    console.log("Error parsing JSON file");
-                    console.log(e.message);
+                    this.errorHandler.LogAndStoreError(`Error parsing JSON file: ${e.message}`);
                 }
                 transactionObjects.forEach((record => {
                     try {
                         transactions.push(this.ParseTransaction(record));
                     }
                     catch (e) {
-                        const errMsg = `Error on line ${lineCount}: ${e.message}`;
-                        logger.debug(errMsg);
-                        parseErrors.push(errMsg);
+                        this.errorHandler.LogAndStoreError(e.message, lineCount);
                     }
                     lineCount++;
                 }));
                 resolve(transactions);
-                if (parseErrors.length > 0) {
-                    throw new Error(`The following errors were encountered in the CSV file: 
-                    ${parseErrors.join('\n')}
-                    These transactions have not been processed.\n`);
-                }
             });
         });
     }
