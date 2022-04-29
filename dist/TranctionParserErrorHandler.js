@@ -12,7 +12,7 @@ class TranctionParserErrorHandler {
     LogAndStoreError(errorMessage, lineNumber = -1) {
         let messageToLogAndStore = errorMessage;
         if (lineNumber > 0) {
-            messageToLogAndStore = `Error on line: ${lineNumber}: ${errorMessage}. These transactions have not been processed.`;
+            messageToLogAndStore = `Error on line: ${lineNumber}: ${errorMessage}. This transaction has not been processed.`;
         }
         this.errorMessages.push(messageToLogAndStore);
         this.logger.debug(messageToLogAndStore);

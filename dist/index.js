@@ -19,7 +19,7 @@ const JSONTransactionParser_1 = __importDefault(require("./JSONTransactionParser
 const XMLTransactionParser_1 = __importDefault(require("./XMLTransactionParser"));
 const JSONTransactionExporter_1 = __importDefault(require("./JSONTransactionExporter"));
 const readlineSync = require('readline-sync');
-const validCmds = ["list", "import", "help", "export"];
+const validCmds = ["list", "import", "help", "export", "quit"];
 log4js_1.default.configure({
     appenders: {
         file: { type: 'fileSync', filename: 'logs/debug.log' }

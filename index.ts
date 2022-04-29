@@ -7,7 +7,7 @@ import TransactionParser from "./TransactionParser";
 import TransactionExporter from "./TransactionExporter";
 import JSONTransactionExporter from "./JSONTransactionExporter";
 const readlineSync = require('readline-sync');
-const validCmds = ["list", "import", "help", "export"];
+const validCmds = ["list", "import", "help", "export", "quit"];
 
 log4js.configure({
     appenders: {
